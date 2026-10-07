@@ -39,6 +39,9 @@ kotlin {
             implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
+            implementation(project(":core"))
+            implementation(project(":ui"))
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

@@ -6,29 +6,28 @@
 
 ## 1. Архитектура и структура
 
-Отдельный Git-репозиторий: `/Users/me.gusta/mobileProjects/foundation-kit`
+Отдельные модули библиотеки в репозитории:
 
 ```text
-foundation-kit/
+KmpTemplate/
 ├── gradle/
 │   ├── wrapper/
 │   └── libs.versions.toml      # Единые версии (Kotlin 2.x, Compose, Ktor, KVault)
 ├── build.gradle.kts            # Root конфиг
-├── settings.gradle.kts         # include(":core", ":ui")
+├── settings.gradle.kts         # include(":core", ":ui", ":composeApp")
 ├── core/                       # KMP: без Compose, чистая логика/сервисы
 │   ├── build.gradle.kts
 │   └── src/
-│       ├── commonMain/         # expect контракты
-│       ├── androidMain/        # Android actuals
-│       ├── iosMain/            # iOS actuals
-│       └── jvmMain/            # Desktop actuals
-└── ui/                         # CMP: Compose Multiplatform, зависит от :core
-    ├── build.gradle.kts
-    └── src/
-        ├── commonMain/         # expect Composable виджеты
-        ├── androidMain/        # Material 3 реализации
-        ├── iosMain/            # UIKitView / Cupertino реализации
-        └── jvmMain/            # Desktop реализации
+│       ├── commonMain/         # EngineProvider, KVaultProvider
+│       ├── androidMain/        # OkHttp, EncryptedSharedPreferences (KVault)
+│       └── iosMain/            # Darwin, Keychain (KVault)
+├── ui/                         # CMP: Compose Multiplatform, зависит от :core
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── commonMain/         # PlatformAlertDialog, SystemAppearance
+│       ├── androidMain/        # Material 3 AlertDialog, WindowInsetsControllerCompat
+│       └── iosMain/            # UIAlertController (UIKitView), setStatusBarStyle
+└── composeApp/                 # Пример использования (sample app)
 ```
 
 ---
@@ -99,25 +98,25 @@ foundation-kit/
   - `SystemAppearance` (`expect/actual`).
 - [ ] Проверить компиляцию: `./gradlew :ui:assemble`.
 
-### Этап 4. Интеграция в `MobileWallet` через Composite Build
-- [ ] В `MobileWallet/settings.gradle.kts` добавить:
-  ```kotlin
-  includeBuild("../foundation-kit")
-  ```
-- [ ] В `MobileWallet/composeApp/build.gradle.kts` подключить:
-  ```kotlin
-  commonMain.dependencies {
-      implementation("com.bmstu1619.foundation:core")
-      implementation("com.bmstu1619.foundation:ui")
-  }
-  ```
-- [ ] Заменить локальные вызовы диалогов, лоадеров и KVault на вызовы из `foundation-kit`.
-- [ ] Проверить сборку приложений:
-  - Android: `./gradlew :composeApp:assembleDebug`
-  - iOS Simulator: сборка через Xcode.
+### Интеграция в другие проекты через Composite Build
+В `settings.gradle.kts` другого проекта:
+```kotlin
+includeBuild("/Users/me.gusta/mobileProjects/KmpTemplate")
+```
+В `build.gradle.kts`:
+```kotlin
+commonMain.dependencies {
+    implementation("org.bmstu1519.foundation:core")
+    implementation("org.bmstu1519.foundation:ui")
+}
+```
 
-### Этап 5. Публикация и версионирование
-- [ ] Подключить плагин `maven-publish` в `:core` и `:ui`.
-- [ ] Настроить `group = "com.bmstu1619.foundation"`, `version = "0.1.0"`.
-- [ ] Протестировать локальную публикацию: `./gradlew publishToMavenLocal`.
-- [ ] Добавить инструкции по публикации в GitHub Packages / JitPack для релизов.
+### Локальная публикация (Maven Local)
+```bash
+./gradlew publishToMavenLocal
+```
+В другом проекте добавить `mavenLocal()` в `repositories` и подключить:
+```kotlin
+implementation("org.bmstu1519.foundation:core:0.1.0")
+implementation("org.bmstu1519.foundation:ui:0.1.0")
+```
