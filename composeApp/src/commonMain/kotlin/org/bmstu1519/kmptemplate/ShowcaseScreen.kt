@@ -16,18 +16,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.bmstu1519.foundation.core.haptic.getHapticFeedback
@@ -310,11 +314,28 @@ fun ShowcaseScreen() {
             PlatformBottomSheet(
                 onDismissRequest = { showBottomSheet = false }
             ) {
+                val focusManager = LocalFocusManager.current
+                val scrollState = rememberScrollState()
+
+                // Скрытие клавиатуры при скролле контента (как в нативном iOS UIScrollView)
+                LaunchedEffect(scrollState.isScrollInProgress) {
+                    if (scrollState.isScrollInProgress) {
+                        focusManager.clearFocus()
+                    }
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    focusManager.clearFocus()
+                                }
+                            )
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -323,7 +344,7 @@ fun ShowcaseScreen() {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "↕ Потяните за шторку вверх для открытия на всю высоту (Large Detent) или вниз для сворачивания (Medium Detent) и закрытия.",
+                        text = "↕ Открыто во всю высоту (Large Detent). Потяните за шторку вниз для сворачивания (Medium Detent) или закрытия.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -376,14 +397,14 @@ fun ShowcaseScreen() {
                                     onClick = { getHapticFeedback().mediumImpact() },
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Medium")
+                                    Text("Medium", maxLines = 1)
                                 }
                                 PlatformButton(
                                     onClick = { getHapticFeedback().heavyImpact() },
                                     variant = PlatformButtonVariant.Secondary,
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Heavy")
+                                    Text("Heavy", maxLines = 1)
                                 }
                             }
                             Spacer(Modifier.height(8.dp))
@@ -395,14 +416,14 @@ fun ShowcaseScreen() {
                                     onClick = { getHapticFeedback().success() },
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Success")
+                                    Text("Success", maxLines = 1)
                                 }
                                 PlatformButton(
                                     onClick = { getHapticFeedback().error() },
                                     variant = PlatformButtonVariant.Destructive,
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Error")
+                                    Text("Error", maxLines = 1)
                                 }
                             }
                         }
@@ -424,7 +445,7 @@ fun ShowcaseScreen() {
                         }
                     }
 
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(16.dp))
 
                     PlatformButton(
                         onClick = { showBottomSheet = false },
@@ -432,7 +453,7 @@ fun ShowcaseScreen() {
                     ) {
                         Text("Готово")
                     }
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }

@@ -1,5 +1,6 @@
 package org.bmstu1519.foundation.ui.button
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ actual fun PlatformButton(
         enabled = enabled,
         shape = IosButtonShape,
         colors = buttonColors,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
         content = content
     )
 }

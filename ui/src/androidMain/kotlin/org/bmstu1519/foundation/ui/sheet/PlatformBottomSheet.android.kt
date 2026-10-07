@@ -70,7 +70,7 @@ actual fun PlatformBottomSheet(
     showCloseButton: Boolean,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
