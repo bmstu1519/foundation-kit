@@ -19,6 +19,7 @@
   - `PlatformButton`: кнопка (iOS: Apple HIG с радиусом 10 pt, высотой 44 pt, системным цветом `#007AFF`, `Primary`/`Secondary`/`Destructive`; Android: M3 `Button`/`OutlinedButton`).
   - `PlatformCard`: секция/карточка (iOS: Inset Grouped карточка с радиусом 12 pt, динамический `surface`: белая `#FFFFFF` в светлой теме, `#1C1C1E` в тёмной; Android: M3 `Card` 16 pt).
   - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `DisposableEffect` без лишних subview-артефактов, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
+  - `PlatformBottomSheet`: модальный нижний экран (iOS: [Apple HIG Sheets](https://developer.apple.com/design/human-interface-guidelines/sheets) с detents: Medium ~50% и Large во всю высоту при потягивании за шторку вверх, круглой кнопкой закрытия крестиком сверху справа (30×30 pt), граббером 36×5 pt, Cupertino скруглением 16 pt, затемнением фона, отступами Home Indicator и жестом свайпа вниз; Android: Material 3 `ModalBottomSheet`).
   - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
 - [x] **Демо-экран и UX-полировка (`:composeApp`)**:
   - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми платформенными компонентами.
@@ -52,7 +53,7 @@ KmpTemplate/
 │   └── src/
 │       ├── commonMain/         # PlatformTheme, PlatformSwitch, PlatformTextField,
 │       │                       # PlatformButton, PlatformCard, PlatformAlertDialog,
-│       │                       # SystemAppearance
+│       │                       # PlatformBottomSheet, SystemAppearance
 │       ├── androidMain/        # Material 3 реализации
 │       └── iosMain/            # Apple HIG / Cupertino реализации
 └── composeApp/                 # Пример использования (sample app)
@@ -87,9 +88,9 @@ KmpTemplate/
   - `PlatformButton` — нативная кнопка (`Primary`, `Secondary`, `Destructive`).
   - `PlatformCard` — нативная карточка/секция (iOS: Inset Grouped, Android: Material 3 Card).
   - `PlatformAlertDialog` — нативный алерт (iOS: `UIAlertController` через `DisposableEffect`, Android: Material 3 `AlertDialog`).
+  - `PlatformBottomSheet` — нативный модальный экран (iOS: Apple HIG Sheet с граббером, свайпом вниз и Cupertino скруглением, Android: Material 3 `ModalBottomSheet`).
   - `SystemAppearance` — системная тема, цвет статус-бара.
 - **Roadmap (следующий спринт):**
-  - `PlatformBottomSheet` (Apple Sheets / `UISheetPresentationController`, Android: `ModalBottomSheet`).
   - `PlatformLoader` — индикатор загрузки (Android: `CircularProgressIndicator`, iOS: `UIActivityIndicatorView`).
   - `PlatformSegmentedControl` (iOS: пилюля `UISegmentedControl`, Android: `TabRow`).
   - `PlatformSecureTextField` — защищенный ввод PIN/пароля.
@@ -122,8 +123,9 @@ KmpTemplate/
   - `PlatformButton` (Apple HIG 44 pt Primary/Secondary/Destructive / M3 Button)
   - `PlatformCard` (Apple Inset Grouped / M3 Card)
   - `PlatformAlertDialog` (нативный `UIAlertController` через DisposableEffect / M3 AlertDialog)
+  - `PlatformBottomSheet` (Apple HIG Sheet с граббером и жестом свайпа / M3 ModalBottomSheet)
   - `SystemAppearance` (управление статус-баром)
-- [ ] Roadmap: `PlatformBottomSheet` (Apple Sheets), `PlatformLoader`, `PlatformSegmentedControl`.
+- [ ] Roadmap: `PlatformLoader`, `PlatformSegmentedControl`, `PlatformPullToRefresh`.
 - [x] Проверить компиляцию: `./gradlew :ui:assemble`.
 
 ### Интеграция в другие проекты через Composite Build

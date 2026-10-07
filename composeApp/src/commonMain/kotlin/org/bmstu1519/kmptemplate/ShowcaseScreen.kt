@@ -40,6 +40,7 @@ import org.bmstu1519.foundation.ui.dialog.ActionableAlert
 import org.bmstu1519.foundation.ui.dialog.ActionableButton
 import org.bmstu1519.foundation.ui.dialog.PlatformAlertDialog
 import org.bmstu1519.foundation.ui.input.PlatformTextField
+import org.bmstu1519.foundation.ui.sheet.PlatformBottomSheet
 import org.bmstu1519.foundation.ui.theme.PlatformTheme
 
 @Composable
@@ -47,6 +48,7 @@ fun ShowcaseScreen() {
     var isDarkTheme by remember { mutableStateOf(false) }
     var showAlert by remember { mutableStateOf(false) }
     var alertResultText by remember { mutableStateOf("Диалог ещё не открывался") }
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     // KVault state
     var vaultInputText by remember { mutableStateOf("") }
@@ -153,12 +155,33 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 3: KVaultProvider + PlatformTextField
+                // Секция 3: PlatformBottomSheet (Apple HIG Sheet / M3 ModalBottomSheet)
                 PlatformCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("3. KVaultProvider & TextField", style = MaterialTheme.typography.titleMedium)
+                        Text("3. PlatformBottomSheet (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "iOS: Apple HIG Sheet (граббер, свайп вниз, скругление) | Android: M3 ModalBottomSheet",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        PlatformButton(
+                            onClick = { showBottomSheet = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Открыть нативный Sheet")
+                        }
+                    }
+                }
+
+                // Секция 4: KVaultProvider + PlatformTextField
+                PlatformCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("4. KVaultProvider & TextField", style = MaterialTheme.typography.titleMedium)
                         Text(
                             "iOS: Cupertino TextField без дырки в рамке | Android: OutlinedTextField",
                             style = MaterialTheme.typography.bodySmall,
@@ -215,12 +238,12 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 4: EngineProvider
+                // Секция 5: EngineProvider
                 PlatformCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("4. EngineProvider (:core)", style = MaterialTheme.typography.titleMedium)
+                        Text("5. EngineProvider (:core)", style = MaterialTheme.typography.titleMedium)
                         Text(
                             "iOS: Darwin Engine | Android: OkHttp Engine",
                             style = MaterialTheme.typography.bodySmall,
@@ -274,6 +297,79 @@ fun ShowcaseScreen() {
                     showAlert = false
                 }
             )
+        }
+
+        if (showBottomSheet) {
+            var sheetSwitchChecked by remember { mutableStateOf(true) }
+            var sheetCommentText by remember { mutableStateOf("") }
+
+            PlatformBottomSheet(
+                onDismissRequest = { showBottomSheet = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Apple HIG Sheet",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "↕ Потяните за шторку вверх для открытия на всю высоту (Large Detent) или вниз для сворачивания (Medium Detent) и закрытия.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text("Параметры модального окна", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Включить виброотклик", modifier = Modifier.weight(1f))
+                                PlatformSwitch(
+                                    checked = sheetSwitchChecked,
+                                    onCheckedChange = { sheetSwitchChecked = it }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text("Комментарий к действию", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            PlatformTextField(
+                                value = sheetCommentText,
+                                onValueChange = { sheetCommentText = it },
+                                label = "Заметка",
+                                placeholder = "Введите примечание...",
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+
+                    PlatformButton(
+                        onClick = { showBottomSheet = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Готово")
+                    }
+                    Spacer(Modifier.height(16.dp))
+                }
+            }
         }
     }
 }
