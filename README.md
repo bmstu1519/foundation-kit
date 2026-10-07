@@ -41,6 +41,10 @@ foundation-kit/
   - `KVaultProvider` — безопасное хранилище (Android: EncryptedSharedPreferences / Keychain, iOS: Keychain).
   - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp / Android, iOS: Darwin, Desktop: CIO).
   - `HapticFeedbackProvider` — системный виброотклик (iOS: `UIImpactFeedbackGenerator`, Android: `Vibrator`).
+  - `SessionManager<T>` / `AuthState<T>` — локальная авторизация и управление профилем:
+    - Секретные данные (PIN, токены) в `KVaultProvider`.
+    - Пользовательские настройки (имя, почта, конфиг `T`) через `kotlinx.serialization`.
+    - Состояния: `Unauthorized`, `Locked` (PIN/Биометрия), `Authorized(T)`.
 - **Roadmap (после MVP):**
   - `BiometricsProvider` — FaceID / TouchID / BiometricPrompt.
   - `ClipboardProvider` — работа с системным буфером обмена.
@@ -73,6 +77,7 @@ foundation-kit/
   - `compose = "1.7.x"`
   - `ktor = "3.x"`
   - `kvault = "1.10.x"`
+  - `kotlinx-serialization = "1.7.x"`
 - [ ] Настроить корневой `build.gradle.kts` и `settings.gradle.kts`.
 
 ### Этап 2. Сборка модуля `:core`
@@ -81,6 +86,7 @@ foundation-kit/
   - `EngineProvider` (`commonMain`, `androidMain`, `iosMain`, `jvmMain`).
   - `KVaultProvider` (`commonMain`, `androidMain`, `iosMain`).
   - `HapticFeedbackProvider` (`commonMain`, `androidMain`, `iosMain`).
+  - `SessionManager<T>` и `AuthState<T>` (generic контракт и реализация на базе `KVaultProvider` + serialization).
 - [ ] Проверить компиляцию: `./gradlew :core:assemble`.
 
 ### Этап 3. Сборка модуля `:ui`
@@ -93,7 +99,7 @@ foundation-kit/
   - `SystemAppearance` (`expect/actual`).
 - [ ] Проверить компиляцию: `./gradlew :ui:assemble`.
 
-### Этап 4. Интеграция в `MobileWallet` через Composite Build и другие проекты
+### Этап 4. Интеграция в `MobileWallet` через Composite Build
 - [ ] В `MobileWallet/settings.gradle.kts` добавить:
   ```kotlin
   includeBuild("../foundation-kit")
