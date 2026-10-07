@@ -1,35 +1,117 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Foundation-Kit: План реализации
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
-
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
-
-### Build and Run Android Application
-
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+План создания кроссплатформенной модульной библиотеки (`core` + `ui`) для Kotlin Multiplatform и Compose Multiplatform=нативная реализация для каждой платформы.
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## 1. Архитектура и структура
+
+Отдельный Git-репозиторий: `/Users/me.gusta/mobileProjects/foundation-kit`
+
+```text
+foundation-kit/
+├── gradle/
+│   ├── wrapper/
+│   └── libs.versions.toml      # Единые версии (Kotlin 2.x, Compose, Ktor, KVault)
+├── build.gradle.kts            # Root конфиг
+├── settings.gradle.kts         # include(":core", ":ui")
+├── core/                       # KMP: без Compose, чистая логика/сервисы
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── commonMain/         # expect контракты
+│       ├── androidMain/        # Android actuals
+│       ├── iosMain/            # iOS actuals
+│       └── jvmMain/            # Desktop actuals
+└── ui/                         # CMP: Compose Multiplatform, зависит от :core
+    ├── build.gradle.kts
+    └── src/
+        ├── commonMain/         # expect Composable виджеты
+        ├── androidMain/        # Material 3 реализации
+        ├── iosMain/            # UIKitView / Cupertino реализации
+        └── jvmMain/            # Desktop реализации
+```
+
+---
+
+## 2. Разделение ответственности модулей
+
+### Модуль `:core` (Чистый KMP)
+- **Зависимости:** Kotlin Stdlib, Coroutines, Ktor Client Core, KVault, Koin (core). **Строго без Compose.**
+- **MVP компоненты:**
+  - `KVaultProvider` — безопасное хранилище (Android: EncryptedSharedPreferences / Keychain, iOS: Keychain).
+  - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp / Android, iOS: Darwin, Desktop: CIO).
+  - `HapticFeedbackProvider` — системный виброотклик (iOS: `UIImpactFeedbackGenerator`, Android: `Vibrator`).
+- **Roadmap (после MVP):**
+  - `BiometricsProvider` — FaceID / TouchID / BiometricPrompt.
+  - `ClipboardProvider` — работа с системным буфером обмена.
+  - `PrivacyScreenProvider` — защита от скриншотов и скрытие в app switcher (`FLAG_SECURE`, blur). - не обязательно
+  - `ShareProvider` — системный диалог "Поделиться" (`UIActivityViewController` / `Intent.ACTION_SEND`).
+
+### Модуль `:ui` (Compose Multiplatform)
+- **Зависимости:** `api(project(":core"))`, Compose Multiplatform Runtime + UI + Foundation.
+- **MVP компоненты:**
+  - `PlatformAlertDialog` — нативный алерт (Android: Material 3, iOS: `UIAlertController` через `UIKitView`).
+  - `PlatformLoader` — индикатор загрузки (Android: `CircularProgressIndicator`, iOS: `UIActivityIndicatorView`).
+  - `SystemAppearance` — системная тема, цвет статус-бара, светлая/темная тема.
+- **Roadmap (после MVP):**
+  - `PlatformBottomSheet` / `ActionSheet` (Android: `ModalBottomSheet`, iOS: `UISheetPresentationController`).
+  - `PlatformSegmentedControl` (iOS: пилюля `UISegmentedControl`, Android: `TabRow`).
+  - `PlatformSecureTextField` — защищенный ввод PIN/пароля (iOS: `UITextField.isSecureTextEntry`).
+  - `PlatformPullToRefresh` — нативный bounce и обновление списка.
+  - `PlatformWebView` — просмотрщик ссылок (Solscan, Terms).
+
+---
+
+## 3. Этапы реализации
+
+### Этап 1. Инициализация репозитория и Gradle
+- [ ] Создать директорию `foundation-kit`.
+- [ ] Инициализировать Git.
+- [ ] Настроить Gradle Wrapper (8.x).
+- [ ] Создать `gradle/libs.versions.toml`:
+  - `kotlin = "2.1.0"` (или совпадающая с MobileWallet)
+  - `compose = "1.7.x"`
+  - `ktor = "3.x"`
+  - `kvault = "1.10.x"`
+- [ ] Настроить корневой `build.gradle.kts` и `settings.gradle.kts`.
+
+### Этап 2. Сборка модуля `:core`
+- [ ] Сконфигурировать `core/build.gradle.kts` (таргеты: Android Library, iOS arm64/sim, JVM).
+- [ ] Перенести и обобщить:
+  - `EngineProvider` (`commonMain`, `androidMain`, `iosMain`, `jvmMain`).
+  - `KVaultProvider` (`commonMain`, `androidMain`, `iosMain`).
+  - `HapticFeedbackProvider` (`commonMain`, `androidMain`, `iosMain`).
+- [ ] Проверить компиляцию: `./gradlew :core:assemble`.
+
+### Этап 3. Сборка модуля `:ui`
+- [ ] Сконфигурировать `ui/build.gradle.kts`:
+  - Подключить Compose Multiplatform плагин.
+  - Подключить `api(project(":core"))`.
+- [ ] Реализовать:
+  - `PlatformAlertDialog` (`expect/actual`).
+  - `PlatformLoader` (`expect/actual`).
+  - `SystemAppearance` (`expect/actual`).
+- [ ] Проверить компиляцию: `./gradlew :ui:assemble`.
+
+### Этап 4. Интеграция в `MobileWallet` через Composite Build и другие проекты
+- [ ] В `MobileWallet/settings.gradle.kts` добавить:
+  ```kotlin
+  includeBuild("../foundation-kit")
+  ```
+- [ ] В `MobileWallet/composeApp/build.gradle.kts` подключить:
+  ```kotlin
+  commonMain.dependencies {
+      implementation("com.bmstu1619.foundation:core")
+      implementation("com.bmstu1619.foundation:ui")
+  }
+  ```
+- [ ] Заменить локальные вызовы диалогов, лоадеров и KVault на вызовы из `foundation-kit`.
+- [ ] Проверить сборку приложений:
+  - Android: `./gradlew :composeApp:assembleDebug`
+  - iOS Simulator: сборка через Xcode.
+
+### Этап 5. Публикация и версионирование
+- [ ] Подключить плагин `maven-publish` в `:core` и `:ui`.
+- [ ] Настроить `group = "com.bmstu1619.foundation"`, `version = "0.1.0"`.
+- [ ] Протестировать локальную публикацию: `./gradlew publishToMavenLocal`.
+- [ ] Добавить инструкции по публикации в GitHub Packages / JitPack для релизов.
