@@ -12,13 +12,21 @@
 - [x] **Модуль `:core` (чистый KMP, без Compose)**:
   - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
   - `KVaultProvider`: безопасное хранилище (Android: `EncryptedSharedPreferences` с потокобезопасной фабрикой, iOS: `Keychain`).
-- [x] **Модуль `:ui` (Compose Multiplatform)**:
-  - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `UIKitView`, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
-  - `SystemAppearance`: управление стилем статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
-- [x] **Демо-экран и интеграция (`:composeApp`)**:
-  - Реализован [`ShowcaseScreen`] со всеми 4 компонентами.
+- [x] **Модуль `:ui` (Compose Multiplatform — все компоненты через `expect/actual`)**:
+  - `PlatformTheme`: адаптивная тема (iOS: Apple System Colors, Primary `#007AFF`, `systemGroupedBackground`, `secondarySystemGroupedBackground`, статус-бар; Android: Material 3).
+  - `PlatformSwitch`: нативный переключатель (iOS: фиксированные 51×31 pt, зелёный `#34C759`, белый диск с тенью и контуром, пружинная анимация; Android: Material 3 `Switch`).
+  - `PlatformTextField`: поле ввода (iOS: Apple Inset стиль с адаптивным фоном `surfaceVariant`, скруглением 10 pt, без выреза в рамке; Android: M3 `OutlinedTextField`).
+  - `PlatformButton`: кнопка (iOS: Apple HIG с радиусом 10 pt, высотой 44 pt, системным цветом `#007AFF`, `Primary`/`Secondary`/`Destructive`; Android: M3 `Button`/`OutlinedButton`).
+  - `PlatformCard`: секция/карточка (iOS: Inset Grouped карточка с радиусом 12 pt, динамический `surface`: белая `#FFFFFF` в светлой теме, `#1C1C1E` в тёмной; Android: M3 `Card` 16 pt).
+  - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `DisposableEffect` без лишних subview-артефактов, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
+  - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
+- [x] **Демо-экран и UX-полировка (`:composeApp`)**:
+  - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми платформенными компонентами.
+  - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
+  - Корректная обработка клавиатуры (`.imePadding()`) — поле ввода и кнопки не перекрываются.
+  - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`) — контент не накладывается на часы/вырез при скролле.
   - Добавлена аннотация `@Preview` для отображения в Android Studio.
-  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`].
+  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/androidMain/kotlin/org/bmstu1519/kmptemplate/MainActivity.kt).
 
 ---
 
@@ -42,9 +50,11 @@ KmpTemplate/
 ├── ui/                         # CMP: Compose Multiplatform, зависит от :core
 │   ├── build.gradle.kts
 │   └── src/
-│       ├── commonMain/         # PlatformAlertDialog, SystemAppearance
-│       ├── androidMain/        # Material 3 AlertDialog, WindowInsetsControllerCompat
-│       └── iosMain/            # UIAlertController (UIKitView), setStatusBarStyle
+│       ├── commonMain/         # PlatformTheme, PlatformSwitch, PlatformTextField,
+│       │                       # PlatformButton, PlatformCard, PlatformAlertDialog,
+│       │                       # SystemAppearance
+│       ├── androidMain/        # Material 3 реализации
+│       └── iosMain/            # Apple HIG / Cupertino реализации
 └── composeApp/                 # Пример использования (sample app)
 ```
 
@@ -55,29 +65,34 @@ KmpTemplate/
 ### Модуль `:core` (Чистый KMP)
 - **Зависимости:** Kotlin Stdlib, Coroutines, Ktor Client Core, KVault, Koin (core). **Строго без Compose.**
 - **MVP компоненты:**
-  - `KVaultProvider` — безопасное хранилище (Android: EncryptedSharedPreferences / Keychain, iOS: Keychain).
-  - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp / Android, iOS: Darwin, Desktop: CIO).
+  - `KVaultProvider` — безопасное хранилище (Android: EncryptedSharedPreferences, iOS: Keychain).
+  - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp, iOS: Darwin).
+- **Roadmap (после MVP):**
   - `HapticFeedbackProvider` — системный виброотклик (iOS: `UIImpactFeedbackGenerator`, Android: `Vibrator`).
   - `SessionManager<T>` / `AuthState<T>` — локальная авторизация и управление профилем:
     - Секретные данные (PIN, токены) в `KVaultProvider`.
     - Пользовательские настройки (имя, почта, конфиг `T`) через `kotlinx.serialization`.
     - Состояния: `Unauthorized`, `Locked` (PIN/Биометрия), `Authorized(T)`.
-- **Roadmap (после MVP):**
   - `BiometricsProvider` — FaceID / TouchID / BiometricPrompt.
   - `ClipboardProvider` — работа с системным буфером обмена.
-  - `PrivacyScreenProvider` — защита от скриншотов и скрытие в app switcher (`FLAG_SECURE`, blur). - не обязательно
+  - `PrivacyScreenProvider` — защита от скриншотов и скрытие в app switcher (`FLAG_SECURE`, blur).
   - `ShareProvider` — системный диалог "Поделиться" (`UIActivityViewController` / `Intent.ACTION_SEND`).
 
 ### Модуль `:ui` (Compose Multiplatform)
-- **Зависимости:** `api(project(":core"))`, Compose Multiplatform Runtime + UI + Foundation.
-- **MVP компоненты:**
-  - `PlatformAlertDialog` — нативный алерт (Android: Material 3, iOS: `UIAlertController` через `UIKitView`).
+- **Зависимости:** `api(project(":core"))`, Compose Multiplatform Runtime + UI + Foundation, Material 3.
+- **Реализованные компоненты (expect/actual):**
+  - `PlatformTheme` — адаптивная тема под платформу (iOS: Apple System Colors, Android: Material 3).
+  - `PlatformSwitch` — нативный переключатель (iOS: строгие 51×31 pt, зелёный `#34C759`, Android: Material 3 Switch).
+  - `PlatformTextField` — нативное поле ввода (iOS: Apple Inset стиль без выреза в рамке, Android: OutlinedTextField).
+  - `PlatformButton` — нативная кнопка (`Primary`, `Secondary`, `Destructive`).
+  - `PlatformCard` — нативная карточка/секция (iOS: Inset Grouped, Android: Material 3 Card).
+  - `PlatformAlertDialog` — нативный алерт (iOS: `UIAlertController` через `DisposableEffect`, Android: Material 3 `AlertDialog`).
+  - `SystemAppearance` — системная тема, цвет статус-бара.
+- **Roadmap (следующий спринт):**
+  - `PlatformBottomSheet` (Apple Sheets / `UISheetPresentationController`, Android: `ModalBottomSheet`).
   - `PlatformLoader` — индикатор загрузки (Android: `CircularProgressIndicator`, iOS: `UIActivityIndicatorView`).
-  - `SystemAppearance` — системная тема, цвет статус-бара, светлая/темная тема.
-- **Roadmap (после MVP):**
-  - `PlatformBottomSheet` / `ActionSheet` (Android: `ModalBottomSheet`, iOS: `UISheetPresentationController`).
   - `PlatformSegmentedControl` (iOS: пилюля `UISegmentedControl`, Android: `TabRow`).
-  - `PlatformSecureTextField` — защищенный ввод PIN/пароля (iOS: `UITextField.isSecureTextEntry`).
+  - `PlatformSecureTextField` — защищенный ввод PIN/пароля.
   - `PlatformPullToRefresh` — нативный bounce и обновление списка.
   - `PlatformWebView` — просмотрщик ссылок (Solscan, Terms).
 
@@ -86,35 +101,30 @@ KmpTemplate/
 ## 3. Этапы реализации
 
 ### Этап 1. Инициализация репозитория и Gradle
-- [ ] Создать директорию `foundation-kit`.
-- [ ] Инициализировать Git.
-- [ ] Настроить Gradle Wrapper (8.x).
-- [ ] Создать `gradle/libs.versions.toml`:
-  - `kotlin = "2.1.0"` (или совпадающая с MobileWallet)
-  - `compose = "1.7.x"`
-  - `ktor = "3.x"`
-  - `kvault = "1.10.x"`
-  - `kotlinx-serialization = "1.7.x"`
-- [ ] Настроить корневой `build.gradle.kts` и `settings.gradle.kts`.
+- [x] Создать модули библиотеки в проекте (`:core`, `:ui`, `:composeApp`).
+- [x] Настроить Gradle Wrapper и `gradle/libs.versions.toml`.
+- [x] Настроить корневой `build.gradle.kts` и `settings.gradle.kts` с поддержкой `maven-publish`.
 
 ### Этап 2. Сборка модуля `:core`
-- [ ] Сконфигурировать `core/build.gradle.kts` (таргеты: Android Library, iOS arm64/sim, JVM).
-- [ ] Перенести и обобщить:
-  - `EngineProvider` (`commonMain`, `androidMain`, `iosMain`, `jvmMain`).
-  - `KVaultProvider` (`commonMain`, `androidMain`, `iosMain`).
-  - `HapticFeedbackProvider` (`commonMain`, `androidMain`, `iosMain`).
-  - `SessionManager<T>` и `AuthState<T>` (generic контракт и реализация на базе `KVaultProvider` + serialization).
-- [ ] Проверить компиляцию: `./gradlew :core:assemble`.
+- [x] Сконфигурировать `core/build.gradle.kts` (таргеты: Android Library, iOS arm64/sim).
+- [x] Реализовать сервисы (`commonMain`, `androidMain`, `iosMain`):
+  - `EngineProvider` (Ktor OkHttp / Darwin).
+  - `KVaultProvider` (EncryptedSharedPreferences / Keychain).
+- [ ] Roadmap: `HapticFeedbackProvider`, `SessionManager<T>`, `AuthState<T>`, `BiometricsProvider`.
+- [x] Проверить компиляцию: `./gradlew :core:assemble`.
 
 ### Этап 3. Сборка модуля `:ui`
-- [ ] Сконфигурировать `ui/build.gradle.kts`:
-  - Подключить Compose Multiplatform плагин.
-  - Подключить `api(project(":core"))`.
-- [ ] Реализовать:
-  - `PlatformAlertDialog` (`expect/actual`).
-  - `PlatformLoader` (`expect/actual`).
-  - `SystemAppearance` (`expect/actual`).
-- [ ] Проверить компиляцию: `./gradlew :ui:assemble`.
+- [x] Сконфигурировать `ui/build.gradle.kts` (`api(project(":core"))`, Compose Multiplatform).
+- [x] Реализовать компоненты (`expect/actual` под iOS/Android):
+  - `PlatformTheme` (адаптивная палитра под платформу)
+  - `PlatformSwitch` (Apple HIG свитч 51×31 pt / M3 Switch)
+  - `PlatformTextField` (Apple Inset стиль / M3 OutlinedTextField)
+  - `PlatformButton` (Apple HIG 44 pt Primary/Secondary/Destructive / M3 Button)
+  - `PlatformCard` (Apple Inset Grouped / M3 Card)
+  - `PlatformAlertDialog` (нативный `UIAlertController` через DisposableEffect / M3 AlertDialog)
+  - `SystemAppearance` (управление статус-баром)
+- [ ] Roadmap: `PlatformBottomSheet` (Apple Sheets), `PlatformLoader`, `PlatformSegmentedControl`.
+- [x] Проверить компиляцию: `./gradlew :ui:assemble`.
 
 ### Интеграция в другие проекты через Composite Build
 В `settings.gradle.kts` другого проекта:
