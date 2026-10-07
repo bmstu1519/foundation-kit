@@ -12,6 +12,7 @@
 - [x] **Модуль `:core` (чистый KMP, без Compose)**:
   - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
   - `KVaultProvider`: безопасное хранилище (Android: `EncryptedSharedPreferences` с потокобезопасной фабрикой, iOS: `Keychain`).
+  - `HapticFeedbackProvider`: системный тактильный отклик (iOS: нативный Taptic Engine через `UIImpactFeedbackGenerator`, `UISelectionFeedbackGenerator`, `UINotificationFeedbackGenerator`; Android: `Vibrator` / `VibrationEffect`).
 - [x] **Модуль `:ui` (Compose Multiplatform — все компоненты через `expect/actual`)**:
   - `PlatformTheme`: адаптивная тема (iOS: Apple System Colors, Primary `#007AFF`, `systemGroupedBackground`, `secondarySystemGroupedBackground`, статус-бар; Android: Material 3).
   - `PlatformSwitch`: нативный переключатель (iOS: фиксированные 51×31 pt, зелёный `#34C759`, белый диск с тенью и контуром, пружинная анимация; Android: Material 3 `Switch`).
@@ -68,8 +69,8 @@ KmpTemplate/
 - **MVP компоненты:**
   - `KVaultProvider` — безопасное хранилище (Android: EncryptedSharedPreferences, iOS: Keychain).
   - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp, iOS: Darwin).
+  - `HapticFeedbackProvider` — тактильный отклик (iOS: Taptic Engine, Android: Vibrator).
 - **Roadmap (после MVP):**
-  - `HapticFeedbackProvider` — системный виброотклик (iOS: `UIImpactFeedbackGenerator`, Android: `Vibrator`).
   - `SessionManager<T>` / `AuthState<T>` — локальная авторизация и управление профилем:
     - Секретные данные (PIN, токены) в `KVaultProvider`.
     - Пользовательские настройки (имя, почта, конфиг `T`) через `kotlinx.serialization`.
@@ -111,7 +112,8 @@ KmpTemplate/
 - [x] Реализовать сервисы (`commonMain`, `androidMain`, `iosMain`):
   - `EngineProvider` (Ktor OkHttp / Darwin).
   - `KVaultProvider` (EncryptedSharedPreferences / Keychain).
-- [ ] Roadmap: `HapticFeedbackProvider`, `SessionManager<T>`, `AuthState<T>`, `BiometricsProvider`.
+  - `HapticFeedbackProvider` (Taptic Engine / Vibrator).
+- [ ] Roadmap: `SessionManager<T>`, `AuthState<T>`, `BiometricsProvider`.
 - [x] Проверить компиляцию: `./gradlew :core:assemble`.
 
 ### Этап 3. Сборка модуля `:ui`

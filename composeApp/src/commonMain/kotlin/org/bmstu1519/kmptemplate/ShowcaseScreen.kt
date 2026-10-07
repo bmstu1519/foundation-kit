@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.bmstu1519.foundation.core.haptic.getHapticFeedback
 import org.bmstu1519.foundation.core.network.getEngine
 import org.bmstu1519.foundation.core.storage.getKVaultInstance
 import org.bmstu1519.foundation.ui.button.PlatformButton
@@ -123,7 +124,10 @@ fun ShowcaseScreen() {
                             )
                             PlatformSwitch(
                                 checked = isDarkTheme,
-                                onCheckedChange = { isDarkTheme = it }
+                                onCheckedChange = {
+                                    isDarkTheme = it
+                                    getHapticFeedback().selection()
+                                }
                             )
                         }
                     }
@@ -337,8 +341,69 @@ fun ShowcaseScreen() {
                                 Text("Включить виброотклик", modifier = Modifier.weight(1f))
                                 PlatformSwitch(
                                     checked = sheetSwitchChecked,
-                                    onCheckedChange = { sheetSwitchChecked = it }
+                                    onCheckedChange = {
+                                        sheetSwitchChecked = it
+                                        getHapticFeedback().selection()
+                                    }
                                 )
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text("Тест тактильного отклика (:core)", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Taptic Engine (iOS) / Vibrator (Android)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PlatformButton(
+                                    onClick = { getHapticFeedback().lightImpact() },
+                                    variant = PlatformButtonVariant.Secondary,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Light")
+                                }
+                                PlatformButton(
+                                    onClick = { getHapticFeedback().mediumImpact() },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Medium")
+                                }
+                                PlatformButton(
+                                    onClick = { getHapticFeedback().heavyImpact() },
+                                    variant = PlatformButtonVariant.Secondary,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Heavy")
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PlatformButton(
+                                    onClick = { getHapticFeedback().success() },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Success")
+                                }
+                                PlatformButton(
+                                    onClick = { getHapticFeedback().error() },
+                                    variant = PlatformButtonVariant.Destructive,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Error")
+                                }
                             }
                         }
                     }
