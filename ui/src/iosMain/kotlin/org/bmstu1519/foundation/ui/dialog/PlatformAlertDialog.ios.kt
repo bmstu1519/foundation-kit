@@ -1,8 +1,8 @@
 package org.bmstu1519.foundation.ui.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.UIKitView
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIAlertAction
 import platform.UIKit.UIAlertActionStyleCancel
@@ -18,48 +18,46 @@ actual fun PlatformAlertDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier
 ) {
-    UIKitView(
-        modifier = modifier,
-        factory = {
-            var currentController = UIApplication.sharedApplication.keyWindow?.rootViewController
-            while (currentController?.presentedViewController != null) {
-                currentController = currentController.presentedViewController
+    DisposableEffect(alert) {
+        var currentController = UIApplication.sharedApplication.keyWindow?.rootViewController
+        while (currentController?.presentedViewController != null) {
+            currentController = currentController.presentedViewController
+        }
+
+        val alertController = UIAlertController.alertControllerWithTitle(
+            title = alert.title,
+            message = alert.message,
+            preferredStyle = UIAlertControllerStyleAlert
+        )
+
+        val submitAction = UIAlertAction.actionWithTitle(
+            title = alert.submitButton.buttonText,
+            style = UIAlertActionStyleDefault,
+            handler = {
+                alert.submitButton.action()
+                onDismissRequest()
             }
+        )
+        alertController.addAction(submitAction)
 
-            val alertController = UIAlertController.alertControllerWithTitle(
-                title = alert.title,
-                message = alert.message,
-                preferredStyle = UIAlertControllerStyleAlert
-            )
-
-            val submitAction = UIAlertAction.actionWithTitle(
-                title = alert.submitButton.buttonText,
-                style = UIAlertActionStyleDefault,
+        alert.cancelButton?.let { cancelBtn ->
+            val cancelAction = UIAlertAction.actionWithTitle(
+                title = cancelBtn.buttonText,
+                style = UIAlertActionStyleCancel,
                 handler = {
-                    alert.submitButton.action()
-                    alertController.dismissViewControllerAnimated(flag = true, completion = null)
+                    cancelBtn.action()
                     onDismissRequest()
                 }
             )
-            alertController.addAction(submitAction)
+            alertController.addAction(cancelAction)
+        }
 
-            alert.cancelButton?.let { cancelBtn ->
-                val cancelAction = UIAlertAction.actionWithTitle(
-                    title = cancelBtn.buttonText,
-                    style = UIAlertActionStyleCancel,
-                    handler = {
-                        cancelBtn.action()
-                        alertController.dismissViewControllerAnimated(flag = true, completion = null)
-                        onDismissRequest()
-                    }
-                )
-                alertController.addAction(cancelAction)
+        currentController?.presentViewController(alertController, animated = true, completion = null)
+
+        onDispose {
+            if (alertController.presentingViewController != null) {
+                alertController.dismissViewControllerAnimated(flag = true, completion = null)
             }
-
-            currentController?.presentViewController(alertController, animated = true, completion = null)
-
-            alertController.view
-        },
-        update = {}
-    )
+        }
+    }
 }

@@ -2,27 +2,25 @@ package org.bmstu1519.kmptemplate
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +32,15 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.bmstu1519.foundation.core.network.getEngine
 import org.bmstu1519.foundation.core.storage.getKVaultInstance
+import org.bmstu1519.foundation.ui.button.PlatformButton
+import org.bmstu1519.foundation.ui.button.PlatformButtonVariant
+import org.bmstu1519.foundation.ui.card.PlatformCard
+import org.bmstu1519.foundation.ui.control.PlatformSwitch
 import org.bmstu1519.foundation.ui.dialog.ActionableAlert
 import org.bmstu1519.foundation.ui.dialog.ActionableButton
 import org.bmstu1519.foundation.ui.dialog.PlatformAlertDialog
-import org.bmstu1519.foundation.ui.system.SystemAppearance
+import org.bmstu1519.foundation.ui.input.PlatformTextField
+import org.bmstu1519.foundation.ui.theme.PlatformTheme
 
 @Composable
 fun ShowcaseScreen() {
@@ -58,40 +61,51 @@ fun ShowcaseScreen() {
     // Engine state
     var engineStatusText by remember { mutableStateOf("Нажмите для проверки клиента") }
 
-    SystemAppearance(isDark = isDarkTheme)
-
-    MaterialTheme(colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()) {
-        Scaffold { innerPadding ->
+    PlatformTheme(isDark = isDarkTheme) {
+        Scaffold(
+            topBar = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "Foundation Kit Showcase",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = "Демонстрация базовых модулей :core и :ui",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .imePadding()
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Spacer(Modifier.height(8.dp))
 
-                Text(
-                    text = "Foundation Kit Showcase",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Text(
-                    text = "Демонстрация базовых модулей :core и :ui",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                // Секция 1: SystemAppearance
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                // Секция 1: PlatformSwitch + PlatformTheme
+                PlatformCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("1. SystemAppearance (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text("1. SystemAppearance & Switch (:ui)", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "Управление status bar (светлые/тёмные иконки) и темой",
+                            "iOS: UISwitch зеленый / status bar | Android: Material 3 Switch",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -101,8 +115,11 @@ fun ShowcaseScreen() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (isDarkTheme) "Тёмная тема (белый статус-бар)" else "Светлая тема (тёмный статус-бар)")
-                            Switch(
+                            Text(
+                                text = if (isDarkTheme) "Тёмная тема (белый статус-бар)" else "Светлая тема (тёмный статус-бар)",
+                                modifier = Modifier.weight(1f).padding(end = 12.dp)
+                            )
+                            PlatformSwitch(
                                 checked = isDarkTheme,
                                 onCheckedChange = { isDarkTheme = it }
                             )
@@ -110,21 +127,19 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 2: PlatformAlertDialog
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                // Секция 2: PlatformAlertDialog + PlatformButton
+                PlatformCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("2. PlatformAlertDialog (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text("2. PlatformAlertDialog & Button (:ui)", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: UIAlertController через UIKitView | Android: Material 3 AlertDialog",
+                            "iOS: UIAlertController + кнопка с радиусом 10pt | Android: M3 Dialog + Button",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        Button(
+                        PlatformButton(
                             onClick = { showAlert = true },
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -138,32 +153,31 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 3: KVaultProvider
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                // Секция 3: KVaultProvider + PlatformTextField
+                PlatformCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("3. KVaultProvider (:core)", style = MaterialTheme.typography.titleMedium)
+                        Text("3. KVaultProvider & TextField", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: Keychain | Android: EncryptedSharedPreferences",
+                            "iOS: Cupertino TextField без дырки в рамке | Android: OutlinedTextField",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        OutlinedTextField(
+                        PlatformTextField(
                             value = vaultInputText,
                             onValueChange = { vaultInputText = it },
-                            label = { Text("Значение для сохранения") },
+                            label = "Значение для сохранения",
+                            placeholder = "Введите текст...",
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(12.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Button(
+                            PlatformButton(
                                 onClick = {
                                     runCatching {
                                         val vault = getKVaultInstance().kVault
@@ -177,7 +191,7 @@ fun ShowcaseScreen() {
                             ) {
                                 Text("Сохранить")
                             }
-                            OutlinedButton(
+                            PlatformButton(
                                 onClick = {
                                     runCatching {
                                         val vault = getKVaultInstance().kVault
@@ -187,6 +201,7 @@ fun ShowcaseScreen() {
                                         vaultStoredValue = "Ошибка: ${it.message}"
                                     }
                                 },
+                                variant = PlatformButtonVariant.Secondary,
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text("Очистить")
@@ -201,10 +216,8 @@ fun ShowcaseScreen() {
                 }
 
                 // Секция 4: EngineProvider
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                PlatformCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("4. EngineProvider (:core)", style = MaterialTheme.typography.titleMedium)
@@ -214,7 +227,7 @@ fun ShowcaseScreen() {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        Button(
+                        PlatformButton(
                             onClick = {
                                 runCatching {
                                     val engine = getEngine()
@@ -237,6 +250,7 @@ fun ShowcaseScreen() {
                     }
                 }
 
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
                 Spacer(Modifier.height(16.dp))
             }
         }
