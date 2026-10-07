@@ -3,11 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    `maven-publish`
 }
-
-group = "org.bmstu1519.foundation"
-version = "0.1.0"
 
 kotlin {
     androidTarget {

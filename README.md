@@ -8,7 +8,7 @@
 
 - [x] **Реорганизация репозитория в модульную архитектуру**:
   - Настроен [settings.gradle.kts] с модулями `:core`, `:ui`, `:composeApp`.
-  - Подключен плагин `maven-publish` для локальной публикации (`publishToMavenLocal`) и настроен `group = "org.bmstu1519.foundation"`, `version = "0.1.0"`.
+  - Прямое подключение модулей через проектные зависимости (`project(":core")`, `project(":ui")`).
 - [x] **Модуль `:core` (чистый KMP, без Compose)**:
   - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
   - `KVaultProvider`: безопасное хранилище (Android: `EncryptedSharedPreferences` с потокобезопасной фабрикой, iOS: `Keychain`).
@@ -35,7 +35,7 @@
   - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
   - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`).
   - Добавлена аннотация `@Preview` для отображения в Android Studio.
-  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/androidMain/kotlin/org/bmstu1519/kmptemplate/MainActivity.kt).
+  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`].
 
 ---
 
@@ -123,17 +123,7 @@ includeBuild("/path/to/KmpTemplate")
 В `build.gradle.kts`:
 ```kotlin
 commonMain.dependencies {
-    implementation("org.bmstu1519.foundation:core")
-    implementation("org.bmstu1519.foundation:ui")
+    implementation("KmpTemplate:core")
+    implementation("KmpTemplate:ui")
 }
-```
-
-### Локальная публикация (Maven Local)
-```bash
-./gradlew publishToMavenLocal
-```
-В другом проекте добавить `mavenLocal()` в `repositories` и подключить:
-```kotlin
-implementation("org.bmstu1519.foundation:core:0.1.0")
-implementation("org.bmstu1519.foundation:ui:0.1.0")
 ```

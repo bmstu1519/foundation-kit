@@ -5,11 +5,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    `maven-publish`
 }
-
-group = "org.bmstu1519.foundation"
-version = "0.1.0"
 
 kotlin {
     androidTarget {
