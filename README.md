@@ -1,6 +1,6 @@
 # Foundation-Kit: План реализации
 
-План создания кроссплатформенной модульной библиотеки (`core` + `ui`) для Kotlin Multiplatform и Compose Multiplatform=нативная реализация для каждой платформы.
+План создания кроссплатформенной модульной библиотеки (`core` + `ui`) для Kotlin Multiplatform и Compose Multiplatform с нативной реализацией для каждой платформы.
 
 ---
 
@@ -16,17 +16,24 @@
 - [x] **Модуль `:ui` (Compose Multiplatform — все компоненты через `expect/actual`)**:
   - `PlatformTheme`: адаптивная тема (iOS: Apple System Colors, Primary `#007AFF`, `systemGroupedBackground`, `secondarySystemGroupedBackground`, статус-бар; Android: Material 3).
   - `PlatformSwitch`: нативный переключатель (iOS: фиксированные 51×31 pt, зелёный `#34C759`, белый диск с тенью и контуром, пружинная анимация; Android: Material 3 `Switch`).
-  - `PlatformTextField`: поле ввода (iOS: Apple Inset стиль с адаптивным фоном `surfaceVariant`, скруглением 10 pt, без выреза в рамке; Android: M3 `OutlinedTextField`).
-  - `PlatformButton`: кнопка (iOS: Apple HIG с радиусом 10 pt, высотой 44 pt, системным цветом `#007AFF`, `Primary`/`Secondary`/`Destructive`; Android: M3 `Button`/`OutlinedButton`).
+  - `PlatformTextField`: поле ввода (iOS: Apple Inset стиль с адаптивным фоном `surfaceVariant`, скруглением 10 pt, без выреза в рамке; встроен `BringIntoViewRequester` для автоскролла над клавиатурой; Android: M3 `OutlinedTextField`).
+  - `PlatformButton`: кнопка (iOS: Apple HIG с радиусом 10 pt, высотой 44 pt, системным цветом `#007AFF`, оптимизированным паддингом 8 dp без переноса текста, `Primary`/`Secondary`/`Destructive`; Android: M3 `Button`/`OutlinedButton`).
   - `PlatformCard`: секция/карточка (iOS: Inset Grouped карточка с радиусом 12 pt, динамический `surface`: белая `#FFFFFF` в светлой теме, `#1C1C1E` в тёмной; Android: M3 `Card` 16 pt).
   - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `DisposableEffect` без лишних subview-артефактов, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
-  - `PlatformBottomSheet`: модальный нижний экран (iOS: [Apple HIG Sheets](https://developer.apple.com/design/human-interface-guidelines/sheets) с detents: Medium ~50% и Large во всю высоту при потягивании за шторку вверх, круглой кнопкой закрытия крестиком сверху справа (30×30 pt), граббером 36×5 pt, Cupertino скруглением 16 pt, затемнением фона, отступами Home Indicator и жестом свайпа вниз; Android: Material 3 `ModalBottomSheet`).
+  - `PlatformBottomSheet`: модальный нижний экран по [Apple HIG Sheets](https://developer.apple.com/design/human-interface-guidelines/sheets):
+    - Открывается сразу на максимум наверх (Large Detent, вплотную к статус-бару с учётом чёлки/островка).
+    - Жесты: свайп вниз сворачивает в Medium (~52%) или закрывает; свайп вверх возвращает в Large; тап по грабберу переключает Large ↔ Medium.
+    - Круглая Apple Close Button 30×30 pt с вектором `✕` сверху справа (`showCloseButton = true`).
+    - Дно шторки привязано к нижнему краю экрана (0 pt, без серых зазоров под Home Indicator).
+    - **Нативная обработка клавиатуры (iOS):** отслеживание высоты через `NSNotificationCenter` (`UIKeyboardWillShowNotification` + `CGRectValue`), точный учёт панели подсказок (QuickType: «о, он, ой»).
+    - **Сброс фокуса и скрытие клавиатуры:** тап вне поля ввода (по фону/карточкам), начало скролла (`keyboardDismissMode = .onDrag`) или свайп шторки вниз автоматически гасят клавиатуру и сбрасывают фокус (`LocalFocusManager.clearFocus()`).
+    - Android: Material 3 `ModalBottomSheet` с `skipPartiallyExpanded = true`.
   - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
-- [x] **Демо-экран и UX-полировка (`:composeApp`)**:
-  - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми платформенными компонентами.
+- [x] **Демо-экран и интеграция (`:composeApp`)**:
+  - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми платформенными компонентами и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
+  - В [`MainViewController.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/iosMain/kotlin/org/bmstu1519/kmptemplate/MainViewController.kt) настроен `onFocusBehavior = OnFocusBehavior.DoNothing` для бесшовной работы инсетов и скролла клавиатуры.
   - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
-  - Корректная обработка клавиатуры (`.imePadding()`) — поле ввода и кнопки не перекрываются.
-  - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`) — контент не накладывается на часы/вырез при скролле.
+  - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`).
   - Добавлена аннотация `@Preview` для отображения в Android Studio.
   - Настроена инициализация `initializeKVault` в [`MainActivity.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/androidMain/kotlin/org/bmstu1519/kmptemplate/MainActivity.kt).
 
@@ -46,9 +53,9 @@ KmpTemplate/
 ├── core/                       # KMP: без Compose, чистая логика/сервисы
 │   ├── build.gradle.kts
 │   └── src/
-│       ├── commonMain/         # EngineProvider, KVaultProvider
-│       ├── androidMain/        # OkHttp, EncryptedSharedPreferences (KVault)
-│       └── iosMain/            # Darwin, Keychain (KVault)
+│       ├── commonMain/         # EngineProvider, KVaultProvider, HapticFeedbackProvider
+│       ├── androidMain/        # OkHttp, EncryptedSharedPreferences (KVault), Vibrator
+│       └── iosMain/            # Darwin, Keychain (KVault), Taptic Engine
 ├── ui/                         # CMP: Compose Multiplatform, зависит от :core
 │   ├── build.gradle.kts
 │   └── src/
@@ -56,7 +63,7 @@ KmpTemplate/
 │       │                       # PlatformButton, PlatformCard, PlatformAlertDialog,
 │       │                       # PlatformBottomSheet, SystemAppearance
 │       ├── androidMain/        # Material 3 реализации
-│       └── iosMain/            # Apple HIG / Cupertino реализации
+│       └── iosMain/            # Apple HIG / Cupertino реализации, KeyboardHeight
 └── composeApp/                 # Пример использования (sample app)
 ```
 
@@ -71,10 +78,7 @@ KmpTemplate/
   - `EngineProvider` — HTTP-клиент Ktor (Android: OkHttp, iOS: Darwin).
   - `HapticFeedbackProvider` — тактильный отклик (iOS: Taptic Engine, Android: Vibrator).
 - **Roadmap (после MVP):**
-  - `SessionManager<T>` / `AuthState<T>` — локальная авторизация и управление профилем:
-    - Секретные данные (PIN, токены) в `KVaultProvider`.
-    - Пользовательские настройки (имя, почта, конфиг `T`) через `kotlinx.serialization`.
-    - Состояния: `Unauthorized`, `Locked` (PIN/Биометрия), `Authorized(T)`.
+  - `SessionManager<T>` / `AuthState<T>` — локальная авторизация и управление профилем.
   - `BiometricsProvider` — FaceID / TouchID / BiometricPrompt.
   - `ClipboardProvider` — работа с системным буфером обмена.
   - `PrivacyScreenProvider` — защита от скриншотов и скрытие в app switcher (`FLAG_SECURE`, blur).
@@ -85,11 +89,11 @@ KmpTemplate/
 - **Реализованные компоненты (expect/actual):**
   - `PlatformTheme` — адаптивная тема под платформу (iOS: Apple System Colors, Android: Material 3).
   - `PlatformSwitch` — нативный переключатель (iOS: строгие 51×31 pt, зелёный `#34C759`, Android: Material 3 Switch).
-  - `PlatformTextField` — нативное поле ввода (iOS: Apple Inset стиль без выреза в рамке, Android: OutlinedTextField).
-  - `PlatformButton` — нативная кнопка (`Primary`, `Secondary`, `Destructive`).
+  - `PlatformTextField` — нативное поле ввода с автоскроллом над клавиатурой (`BringIntoViewRequester`).
+  - `PlatformButton` — нативная кнопка (`Primary`, `Secondary`, `Destructive`) с оптимизированным паддингом 8 dp.
   - `PlatformCard` — нативная карточка/секция (iOS: Inset Grouped, Android: Material 3 Card).
   - `PlatformAlertDialog` — нативный алерт (iOS: `UIAlertController` через `DisposableEffect`, Android: Material 3 `AlertDialog`).
-  - `PlatformBottomSheet` — нативный модальный экран (iOS: Apple HIG Sheet с граббером, свайпом вниз и Cupertino скруглением, Android: Material 3 `ModalBottomSheet`).
+  - `PlatformBottomSheet` — нативный модальный экран (iOS: Apple HIG Sheet во всю высоту с Large/Medium detents, крестиком 30×30 pt, нативным отслеживанием клавиатуры и подсказок QuickType, сбросом фокуса по тапу/скроллу).
   - `SystemAppearance` — системная тема, цвет статус-бара.
 - **Roadmap (следующий спринт):**
   - `PlatformLoader` — индикатор загрузки (Android: `CircularProgressIndicator`, iOS: `UIActivityIndicatorView`).
@@ -100,40 +104,21 @@ KmpTemplate/
 
 ---
 
-## 3. Этапы реализации
+## 3. Сборка и интеграция
 
-### Этап 1. Инициализация репозитория и Gradle
-- [x] Создать модули библиотеки в проекте (`:core`, `:ui`, `:composeApp`).
-- [x] Настроить Gradle Wrapper и `gradle/libs.versions.toml`.
-- [x] Настроить корневой `build.gradle.kts` и `settings.gradle.kts` с поддержкой `maven-publish`.
+### Прямое подключение модулей (Рекомендуется)
+Модули `:core` и `:ui` подключены в проекте напрямую:
+```kotlin
+commonMain.dependencies {
+    implementation(project(":core"))
+    implementation(project(":ui"))
+}
+```
 
-### Этап 2. Сборка модуля `:core`
-- [x] Сконфигурировать `core/build.gradle.kts` (таргеты: Android Library, iOS arm64/sim).
-- [x] Реализовать сервисы (`commonMain`, `androidMain`, `iosMain`):
-  - `EngineProvider` (Ktor OkHttp / Darwin).
-  - `KVaultProvider` (EncryptedSharedPreferences / Keychain).
-  - `HapticFeedbackProvider` (Taptic Engine / Vibrator).
-- [ ] Roadmap: `SessionManager<T>`, `AuthState<T>`, `BiometricsProvider`.
-- [x] Проверить компиляцию: `./gradlew :core:assemble`.
-
-### Этап 3. Сборка модуля `:ui`
-- [x] Сконфигурировать `ui/build.gradle.kts` (`api(project(":core"))`, Compose Multiplatform).
-- [x] Реализовать компоненты (`expect/actual` под iOS/Android):
-  - `PlatformTheme` (адаптивная палитра под платформу)
-  - `PlatformSwitch` (Apple HIG свитч 51×31 pt / M3 Switch)
-  - `PlatformTextField` (Apple Inset стиль / M3 OutlinedTextField)
-  - `PlatformButton` (Apple HIG 44 pt Primary/Secondary/Destructive / M3 Button)
-  - `PlatformCard` (Apple Inset Grouped / M3 Card)
-  - `PlatformAlertDialog` (нативный `UIAlertController` через DisposableEffect / M3 AlertDialog)
-  - `PlatformBottomSheet` (Apple HIG Sheet с граббером и жестом свайпа / M3 ModalBottomSheet)
-  - `SystemAppearance` (управление статус-баром)
-- [ ] Roadmap: `PlatformLoader`, `PlatformSegmentedControl`, `PlatformPullToRefresh`.
-- [x] Проверить компиляцию: `./gradlew :ui:assemble`.
-
-### Интеграция в другие проекты через Composite Build
+### Интеграция в сторонние проекты через Composite Build
 В `settings.gradle.kts` другого проекта:
 ```kotlin
-includeBuild("/Users/me.gusta/mobileProjects/KmpTemplate")
+includeBuild("/path/to/KmpTemplate")
 ```
 В `build.gradle.kts`:
 ```kotlin
