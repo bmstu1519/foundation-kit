@@ -4,6 +4,24 @@
 
 ---
 
+## sprint1: Выполненные задачи
+
+- [x] **Реорганизация репозитория в модульную архитектуру**:
+  - Настроен [settings.gradle.kts](file:///Users/me.gusta/mobileProjects/KmpTemplate/settings.gradle.kts) с модулями `:core`, `:ui`, `:composeApp`.
+  - Подключен плагин `maven-publish` для локальной публикации (`publishToMavenLocal`) и настроен `group = "org.bmstu1519.foundation"`, `version = "0.1.0"`.
+- [x] **Модуль `:core` (чистый KMP, без Compose)**:
+  - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
+  - `KVaultProvider`: безопасное хранилище (Android: `EncryptedSharedPreferences` с потокобезопасной фабрикой, iOS: `Keychain`).
+- [x] **Модуль `:ui` (Compose Multiplatform)**:
+  - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `UIKitView`, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
+  - `SystemAppearance`: управление стилем статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
+- [x] **Демо-экран и интеграция (`:composeApp`)**:
+  - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми 4 компонентами.
+  - Добавлена аннотация `@Preview` для отображения в Android Studio.
+  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/androidMain/kotlin/org/bmstu1519/kmptemplate/MainActivity.kt).
+
+---
+
 ## 1. Архитектура и структура
 
 Отдельные модули библиотеки в репозитории:
