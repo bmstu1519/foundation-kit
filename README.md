@@ -7,7 +7,7 @@
 ## sprint1: Выполненные задачи
 
 - [x] **Реорганизация репозитория в модульную архитектуру**:
-  - Настроен [settings.gradle.kts] с модулями `:core`, `:ui`, `:composeApp`.
+  - Настроен [settings.gradle.kts] с модулями `:core`, `:ui`, `:sample`.
   - Прямое подключение модулей через проектные зависимости (`project(":core")`, `project(":ui")`).
 - [x] **Модуль `:core` (чистый KMP, без Compose)**:
   - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
@@ -29,7 +29,7 @@
     - **Сброс фокуса и скрытие клавиатуры:** тап вне поля ввода (по фону/карточкам), начало скролла (`keyboardDismissMode = .onDrag`) или свайп шторки вниз автоматически гасят клавиатуру и сбрасывают фокус (`LocalFocusManager.clearFocus()`).
     - Android: Material 3 `ModalBottomSheet` с `skipPartiallyExpanded = true`.
   - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
-- [x] **Демо-экран и интеграция (`:composeApp`)**:
+- [x] **Демо-экран и интеграция (`:sample`)**:
   - Реализован [`ShowcaseScreen`] со всеми платформенными компонентами и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
   - В [`MainViewController.kt`] настроен `onFocusBehavior = OnFocusBehavior.DoNothing` для бесшовной работы инсетов и скролла клавиатуры.
   - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
@@ -49,7 +49,7 @@ foundation-kit/
 │   ├── wrapper/
 │   └── libs.versions.toml      # Единые версии (Kotlin 2.x, Compose, Ktor, KVault)
 ├── build.gradle.kts            # Root конфиг
-├── settings.gradle.kts         # include(":core", ":ui", ":composeApp")
+├── settings.gradle.kts         # include(":core", ":ui", ":sample")
 ├── core/                       # KMP: без Compose, чистая логика/сервисы
 │   ├── build.gradle.kts
 │   └── src/
@@ -64,7 +64,7 @@ foundation-kit/
 │       │                       # PlatformBottomSheet, SystemAppearance
 │       ├── androidMain/        # Material 3 реализации
 │       └── iosMain/            # Apple HIG / Cupertino реализации, KeyboardHeight
-└── composeApp/                 # Пример использования (sample app)
+└── sample/                     # Пример использования (sample app)
 ```
 
 ---
