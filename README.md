@@ -4,7 +4,7 @@
 
 ---
 
-## sprint1: Выполненные задачи
+## sprint1-1.1: Задачи и архитектура
 
 - [x] **Реорганизация репозитория в модульную архитектуру**:
   - Настроен [settings.gradle.kts] с модулями `:core`, `:ui`, `:sample`.
@@ -13,29 +13,16 @@
   - `EngineProvider`: кроссплатформенный клиент Ktor (Android: OkHttp, iOS: Darwin).
   - `KVaultProvider`: безопасное хранилище (Android: `EncryptedSharedPreferences` с потокобезопасной фабрикой, iOS: `Keychain`).
   - `HapticFeedbackProvider`: системный тактильный отклик (iOS: нативный Taptic Engine через `UIImpactFeedbackGenerator`, `UISelectionFeedbackGenerator`, `UINotificationFeedbackGenerator`; Android: `Vibrator` / `VibrationEffect`).
-- [x] **Модуль `:ui` (Compose Multiplatform — все компоненты через `expect/actual`)**:
-  - `PlatformTheme`: адаптивная тема (iOS: Apple System Colors, Primary `#007AFF`, `systemGroupedBackground`, `secondarySystemGroupedBackground`, статус-бар; Android: Material 3).
-  - `PlatformSwitch`: нативный переключатель (iOS: фиксированные 51×31 pt, зелёный `#34C759`, белый диск с тенью и контуром, пружинная анимация; Android: Material 3 `Switch`).
-  - `PlatformTextField`: поле ввода (iOS: Apple Inset стиль с адаптивным фоном `surfaceVariant`, скруглением 10 pt, без выреза в рамке; встроен `BringIntoViewRequester` для автоскролла над клавиатурой; Android: M3 `OutlinedTextField`).
-  - `PlatformButton`: кнопка (iOS: Apple HIG с радиусом 10 pt, высотой 44 pt, системным цветом `#007AFF`, оптимизированным паддингом 8 dp без переноса текста, `Primary`/`Secondary`/`Destructive`; Android: M3 `Button`/`OutlinedButton`).
-  - `PlatformCard`: секция/карточка (iOS: Inset Grouped карточка с радиусом 12 pt, динамический `surface`: белая `#FFFFFF` в светлой теме, `#1C1C1E` в тёмной; Android: M3 `Card` 16 pt).
-  - `PlatformAlertDialog`: нативный диалог (iOS: `UIAlertController` через `DisposableEffect` без лишних subview-артефактов, Android: Material 3 `AlertDialog`) + модели `ActionableAlert`, `ActionableButton`.
-  - `PlatformBottomSheet`: модальный нижний экран по [Apple HIG Sheets](https://developer.apple.com/design/human-interface-guidelines/sheets):
-    - Открывается сразу на максимум наверх (Large Detent, вплотную к статус-бару с учётом чёлки/островка).
-    - Жесты: свайп вниз сворачивает в Medium (~52%) или закрывает; свайп вверх возвращает в Large; тап по грабберу переключает Large ↔ Medium.
-    - Круглая Apple Close Button 30×30 pt с вектором `✕` сверху справа (`showCloseButton = true`).
-    - Дно шторки привязано к нижнему краю экрана (0 pt, без серых зазоров под Home Indicator).
-    - **Нативная обработка клавиатуры (iOS):** отслеживание высоты через `NSNotificationCenter` (`UIKeyboardWillShowNotification` + `CGRectValue`), точный учёт панели подсказок (QuickType: «о, он, ой»).
-    - **Сброс фокуса и скрытие клавиатуры:** тап вне поля ввода (по фону/карточкам), начало скролла (`keyboardDismissMode = .onDrag`) или свайп шторки вниз автоматически гасят клавиатуру и сбрасывают фокус (`LocalFocusManager.clearFocus()`).
-    - Android: Material 3 `ModalBottomSheet` с `skipPartiallyExpanded = true`.
+- [/] **Модуль `:ui` (Нативные оверлеи UIKit из Kotlin + Бренд-тема)**:
+  - `FoundationTheme`: базовая бренд-тема на Compose (Material Theme Builder) для верстки экранов без имитации псевдо-Cupertino.
+  - `LocalUIViewController`: `CompositionLocal` провайдер корневого `UIViewController` для безопасного показа модалок без поиска по `keyWindow`.
+  - `PlatformBottomSheet`: нативная шторка Apple (`UISheetPresentationController` с detents `.medium()`, `.large()`, системным свайпом, блюром и хостингом Compose через `ComposeUIViewController` на iOS; `ModalBottomSheet` на Android).
+  - `PlatformAlertDialog`: нативный системный диалог (`UIAlertController` + `UIAlertAction` на iOS; Material 3 `AlertDialog` на Android).
+  - `PlatformLoader`: нативный индикатор загрузки (`UIActivityIndicatorView` через `UIKitView` на iOS; `CircularProgressIndicator` на Android).
   - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
-- [x] **Демо-экран и интеграция (`:sample`)**:
-  - Реализован [`ShowcaseScreen`] со всеми платформенными компонентами и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
-  - В [`MainViewController.kt`] настроен `onFocusBehavior = OnFocusBehavior.DoNothing` для бесшовной работы инсетов и скролла клавиатуры.
-  - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
-  - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`).
-  - Добавлена аннотация `@Preview` для отображения в Android Studio.
-  - Настроена инициализация `initializeKVault` в [`MainActivity.kt`].
+- [x] **Демо-витрина (`:sample`)**:
+  - Интеграционный экран со всеми системными оверлеями и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
+  - В `MainViewController.kt` настроен `LocalUIViewController` для системных модалок.
 
 ---
 
@@ -84,23 +71,23 @@ foundation-kit/
   - `PrivacyScreenProvider` — защита от скриншотов и скрытие в app switcher (`FLAG_SECURE`, blur).
   - `ShareProvider` — системный диалог "Поделиться" (`UIActivityViewController` / `Intent.ACTION_SEND`).
 
-### Модуль `:ui` (Compose Multiplatform)
+### Модуль `:ui` (Compose Multiplatform + Нативные UIKit Оверлеи)
 - **Зависимости:** `api(project(":core"))`, Compose Multiplatform Runtime + UI + Foundation, Material 3.
-- **Реализованные компоненты (expect/actual):**
-  - `PlatformTheme` — адаптивная тема под платформу (iOS: Apple System Colors, Android: Material 3).
-  - `PlatformSwitch` — нативный переключатель (iOS: строгие 51×31 pt, зелёный `#34C759`, Android: Material 3 Switch).
-  - `PlatformTextField` — нативное поле ввода с автоскроллом над клавиатурой (`BringIntoViewRequester`).
-  - `PlatformButton` — нативная кнопка (`Primary`, `Secondary`, `Destructive`) с оптимизированным паддингом 8 dp.
-  - `PlatformCard` — нативная карточка/секция (iOS: Inset Grouped, Android: Material 3 Card).
-  - `PlatformAlertDialog` — нативный алерт (iOS: `UIAlertController` через `DisposableEffect`, Android: Material 3 `AlertDialog`).
-  - `PlatformBottomSheet` — нативный модальный экран (iOS: Apple HIG Sheet во всю высоту с Large/Medium detents, крестиком 30×30 pt, нативным отслеживанием клавиатуры и подсказок QuickType, сбросом фокуса по тапу/скроллу).
-  - `SystemAppearance` — системная тема, цвет статус-бара.
+- **Архитектурный принцип:**
+  - Экраны и верстка пишутся на чистом Compose в рамках единой дизайн-системы (без псевдо-Cupertino имитаций).
+  - Системные модальные окна и индикаторы на iOS реализуются **напрямую через 100% нативный UIKit из Kotlin (`platform.UIKit.*`)**.
+- **Компоненты (expect/actual):**
+  - `FoundationTheme` — дизайн-система на Material Theme Builder.
+  - `LocalUIViewController` — провайдер родительского UIViewController для презентации модалок.
+  - `PlatformBottomSheet` — нативный `UISheetPresentationController` на iOS (с detents, родной физикой и хостингом Compose) / `ModalBottomSheet` на Android.
+  - `PlatformAlertDialog` — нативный `UIAlertController` на iOS / `AlertDialog` на Android.
+  - `PlatformLoader` — нативный `UIActivityIndicatorView` через `UIKitView` на iOS / `CircularProgressIndicator` на Android.
+  - `SystemAppearance` — системный статус-бар.
 - **Roadmap (следующий спринт):**
-  - `PlatformLoader` — индикатор загрузки (Android: `CircularProgressIndicator`, iOS: `UIActivityIndicatorView`).
-  - `PlatformSegmentedControl` (iOS: пилюля `UISegmentedControl`, Android: `TabRow`).
-  - `PlatformSecureTextField` — защищенный ввод PIN/пароля.
-  - `PlatformPullToRefresh` — нативный bounce и обновление списка.
-  - `PlatformWebView` — просмотрщик ссылок (Solscan, Terms).
+  - `PlatformShareSheet` — системный диалог «Поделиться» (`UIActivityViewController`).
+  - `PlatformSegmentedControl` — системные вкладки (`UISegmentedControl`).
+  - `PlatformDatePicker` — нативный селектор даты (`UIDatePicker`).
+  - `PlatformWebView` — браузерный просмотрщик ссылок (`WKWebView` / `SFSafariViewController`).
 
 ---
 
