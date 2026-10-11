@@ -30,8 +30,8 @@
     - Android: Material 3 `ModalBottomSheet` с `skipPartiallyExpanded = true`.
   - `SystemAppearance`: динамическое управление цветом статус-бара (iOS: `setStatusBarStyle`, Android: `WindowInsetsControllerCompat`).
 - [x] **Демо-экран и интеграция (`:composeApp`)**:
-  - Реализован [`ShowcaseScreen`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/commonMain/kotlin/org/bmstu1519/kmptemplate/ShowcaseScreen.kt) со всеми платформенными компонентами и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
-  - В [`MainViewController.kt`](file:///Users/me.gusta/mobileProjects/KmpTemplate/composeApp/src/iosMain/kotlin/org/bmstu1519/kmptemplate/MainViewController.kt) настроен `onFocusBehavior = OnFocusBehavior.DoNothing` для бесшовной работы инсетов и скролла клавиатуры.
+  - Реализован [`ShowcaseScreen`] со всеми платформенными компонентами и тестом тактильного отклика (Light, Medium, Heavy, Success, Error).
+  - В [`MainViewController.kt`] настроен `onFocusBehavior = OnFocusBehavior.DoNothing` для бесшовной работы инсетов и скролла клавиатуры.
   - Полноэкранный скролл с отступом под Home Indicator (`WindowInsets.navigationBars`).
   - Закреплённая шапка под статус-баром (`WindowInsets.statusBars`).
   - Добавлена аннотация `@Preview` для отображения в Android Studio.
@@ -44,7 +44,7 @@
 Отдельные модули библиотеки в репозитории:
 
 ```text
-KmpTemplate/
+foundation-kit/
 ├── gradle/
 │   ├── wrapper/
 │   └── libs.versions.toml      # Единые версии (Kotlin 2.x, Compose, Ktor, KVault)
@@ -118,12 +118,12 @@ commonMain.dependencies {
 ### Интеграция в сторонние проекты через Composite Build
 В `settings.gradle.kts` другого проекта:
 ```kotlin
-includeBuild("/path/to/KmpTemplate")
+includeBuild("/path/to/foundation-kit")
 ```
 В `build.gradle.kts`:
 ```kotlin
 commonMain.dependencies {
-    implementation("KmpTemplate:core")
-    implementation("KmpTemplate:ui")
+    implementation("foundation-kit:core")
+    implementation("foundation-kit:ui")
 }
 ```

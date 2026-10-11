@@ -1,4 +1,4 @@
-package org.bmstu1519.kmptemplate
+package org.bmstu1519.foundation.sample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

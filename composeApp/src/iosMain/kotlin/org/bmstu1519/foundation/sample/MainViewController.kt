@@ -1,4 +1,4 @@
-package org.bmstu1519.kmptemplate
+package org.bmstu1519.foundation.sample
 
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController

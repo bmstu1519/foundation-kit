@@ -23,6 +23,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "org.bmstu1519.foundation.sample")
         }
     }
     
@@ -92,11 +93,11 @@ kotlin {
 }
 
 android {
-    namespace = "org.bmstu1519.kmptemplate"
+    namespace = "org.bmstu1519.foundation.sample"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "org.bmstu1519.kmptemplate"
+        applicationId = "org.bmstu1519.foundation.sample"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

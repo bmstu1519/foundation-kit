@@ -1,4 +1,4 @@
-package org.bmstu1519.kmptemplate
+package org.bmstu1519.foundation.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

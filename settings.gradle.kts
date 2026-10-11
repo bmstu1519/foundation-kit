@@ -1,4 +1,4 @@
-rootProject.name = "KmpTemplate"
+rootProject.name = "foundation-kit"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
