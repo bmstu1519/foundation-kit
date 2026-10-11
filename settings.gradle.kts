@@ -1,4 +1,4 @@
-rootProject.name = "KmpTemplate"
+rootProject.name = "foundation-kit"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -28,6 +28,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":sample")
 include(":core")
 include(":ui")
