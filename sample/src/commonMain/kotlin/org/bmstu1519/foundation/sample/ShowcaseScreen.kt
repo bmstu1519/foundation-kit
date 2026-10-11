@@ -16,35 +16,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.bmstu1519.foundation.core.haptic.getHapticFeedback
 import org.bmstu1519.foundation.core.network.getEngine
 import org.bmstu1519.foundation.core.storage.getKVaultInstance
-import org.bmstu1519.foundation.ui.button.PlatformButton
-import org.bmstu1519.foundation.ui.button.PlatformButtonVariant
-import org.bmstu1519.foundation.ui.card.PlatformCard
-import org.bmstu1519.foundation.ui.control.PlatformSwitch
 import org.bmstu1519.foundation.ui.dialog.ActionableAlert
 import org.bmstu1519.foundation.ui.dialog.ActionableButton
 import org.bmstu1519.foundation.ui.dialog.PlatformAlertDialog
-import org.bmstu1519.foundation.ui.input.PlatformTextField
+import org.bmstu1519.foundation.ui.loader.LoaderSize
+import org.bmstu1519.foundation.ui.loader.PlatformLoader
 import org.bmstu1519.foundation.ui.sheet.PlatformBottomSheet
 import org.bmstu1519.foundation.ui.theme.PlatformTheme
 
@@ -85,7 +84,7 @@ fun ShowcaseScreen() {
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text = "Демонстрация базовых модулей :core и :ui",
+                            text = "100% нативные UIKit оверлеи + Compose бренд-UI",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -105,14 +104,12 @@ fun ShowcaseScreen() {
             ) {
                 Spacer(Modifier.height(8.dp))
 
-                // Секция 1: PlatformSwitch + PlatformTheme
-                PlatformCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // Секция 1: Тема и статус-бар
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("1. SystemAppearance & Switch (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text("1. SystemAppearance & Тема", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: UISwitch зеленый / status bar | Android: Material 3 Switch",
+                            "Динамическое управление статус-баром iOS/Android",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -126,7 +123,7 @@ fun ShowcaseScreen() {
                                 text = if (isDarkTheme) "Тёмная тема (белый статус-бар)" else "Светлая тема (тёмный статус-бар)",
                                 modifier = Modifier.weight(1f).padding(end = 12.dp)
                             )
-                            PlatformSwitch(
+                            Switch(
                                 checked = isDarkTheme,
                                 onCheckedChange = {
                                     isDarkTheme = it
@@ -137,23 +134,55 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 2: PlatformAlertDialog + PlatformButton
-                PlatformCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // Секция 2: Нативный PlatformLoader (UIActivityIndicatorView на iOS)
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("2. PlatformAlertDialog & Button (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text("2. Нативный PlatformLoader (:ui)", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: UIAlertController + кнопка с радиусом 10pt | Android: M3 Dialog + Button",
+                            "iOS: UIActivityIndicatorView (UIKit) | Android: CircularProgressIndicator",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                PlatformLoader(size = LoaderSize.Small)
+                                Spacer(Modifier.height(4.dp))
+                                Text("Small", style = MaterialTheme.typography.labelSmall)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                PlatformLoader(size = LoaderSize.Medium)
+                                Spacer(Modifier.height(4.dp))
+                                Text("Medium", style = MaterialTheme.typography.labelSmall)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                PlatformLoader(size = LoaderSize.Large)
+                                Spacer(Modifier.height(4.dp))
+                                Text("Large", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                }
+
+                // Секция 3: Нативный PlatformAlertDialog (UIAlertController на iOS)
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("3. Нативный PlatformAlertDialog (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "iOS: 100% UIAlertController через LocalUIViewController | Android: M3 AlertDialog",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        PlatformButton(
+                        Button(
                             onClick = { showAlert = true },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Показать нативный диалог")
+                            Text("Показать системный алерт")
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
@@ -163,44 +192,40 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 3: PlatformBottomSheet (Apple HIG Sheet / M3 ModalBottomSheet)
-                PlatformCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // Секция 4: Нативный PlatformBottomSheet (UISheetPresentationController на iOS)
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("3. PlatformBottomSheet (:ui)", style = MaterialTheme.typography.titleMedium)
+                        Text("4. Нативный PlatformBottomSheet (:ui)", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: Apple HIG Sheet (граббер, свайп вниз, скругление) | Android: M3 ModalBottomSheet",
+                            "iOS: UISheetPresentationController (medium/large, системный свайп и блюр) | Android: ModalBottomSheet",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        PlatformButton(
+                        Button(
                             onClick = { showBottomSheet = true },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Открыть нативный Sheet")
+                            Text("Открыть нативный BottomSheet")
                         }
                     }
                 }
 
-                // Секция 4: KVaultProvider + PlatformTextField
-                PlatformCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // Секция 5: KVaultProvider
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("4. KVaultProvider & TextField", style = MaterialTheme.typography.titleMedium)
+                        Text("5. KVaultProvider (:core)", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "iOS: Cupertino TextField без дырки в рамке | Android: OutlinedTextField",
+                            "iOS: Keychain | Android: EncryptedSharedPreferences",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        PlatformTextField(
+                        OutlinedTextField(
                             value = vaultInputText,
                             onValueChange = { vaultInputText = it },
-                            label = "Значение для сохранения",
-                            placeholder = "Введите текст...",
+                            label = { Text("Значение для сохранения") },
+                            placeholder = { Text("Введите текст...") },
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(Modifier.height(12.dp))
@@ -208,7 +233,7 @@ fun ShowcaseScreen() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            PlatformButton(
+                            Button(
                                 onClick = {
                                     runCatching {
                                         val vault = getKVaultInstance().kVault
@@ -222,7 +247,7 @@ fun ShowcaseScreen() {
                             ) {
                                 Text("Сохранить")
                             }
-                            PlatformButton(
+                            OutlinedButton(
                                 onClick = {
                                     runCatching {
                                         val vault = getKVaultInstance().kVault
@@ -232,7 +257,6 @@ fun ShowcaseScreen() {
                                         vaultStoredValue = "Ошибка: ${it.message}"
                                     }
                                 },
-                                variant = PlatformButtonVariant.Secondary,
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text("Очистить")
@@ -246,19 +270,17 @@ fun ShowcaseScreen() {
                     }
                 }
 
-                // Секция 5: EngineProvider
-                PlatformCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // Секция 6: EngineProvider
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("5. EngineProvider (:core)", style = MaterialTheme.typography.titleMedium)
+                        Text("6. EngineProvider (:core)", style = MaterialTheme.typography.titleMedium)
                         Text(
                             "iOS: Darwin Engine | Android: OkHttp Engine",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
-                        PlatformButton(
+                        Button(
                             onClick = {
                                 runCatching {
                                     val engine = getEngine()
@@ -281,6 +303,63 @@ fun ShowcaseScreen() {
                     }
                 }
 
+                // Секция 7: HapticFeedbackProvider
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("7. HapticFeedbackProvider (:core)", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "iOS: Taptic Engine | Android: Vibrator",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = { getHapticFeedback().lightImpact() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Light")
+                            }
+                            Button(
+                                onClick = { getHapticFeedback().mediumImpact() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Medium")
+                            }
+                            OutlinedButton(
+                                onClick = { getHapticFeedback().heavyImpact() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Heavy")
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { getHapticFeedback().success() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Success")
+                            }
+                            Button(
+                                onClick = { getHapticFeedback().error() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Error")
+                            }
+                        }
+                    }
+                }
+
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
                 Spacer(Modifier.height(16.dp))
             }
@@ -290,7 +369,7 @@ fun ShowcaseScreen() {
             PlatformAlertDialog(
                 alert = ActionableAlert(
                     title = "Подтверждение",
-                    message = "Это нативный диалог платформы. Нажмите кнопку для проверки отклика.",
+                    message = "Это нативный системный диалог платформы. Нажмите кнопку для проверки отклика.",
                     submitButton = ActionableButton(buttonText = "Принять") {
                         alertResultText = "Нажата кнопка 'Принять'"
                         showAlert = false
@@ -301,159 +380,55 @@ fun ShowcaseScreen() {
                     }
                 ),
                 onDismissRequest = {
-                    alertResultText = "Диалог закрыт (свайп/клик вне диалога)"
+                    alertResultText = "Диалог закрыт"
                     showAlert = false
                 }
             )
         }
 
         if (showBottomSheet) {
-            var sheetSwitchChecked by remember { mutableStateOf(true) }
-            var sheetCommentText by remember { mutableStateOf("") }
-
             PlatformBottomSheet(
                 onDismissRequest = { showBottomSheet = false }
             ) {
-                val focusManager = LocalFocusManager.current
-                val scrollState = rememberScrollState()
-
-                // Скрытие клавиатуры при скролле контента (как в нативном iOS UIScrollView)
-                LaunchedEffect(scrollState.isScrollInProgress) {
-                    if (scrollState.isScrollInProgress) {
-                        focusManager.clearFocus()
-                    }
-                }
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .verticalScroll(scrollState)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    focusManager.clearFocus()
-                                }
-                            )
-                        },
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Apple HIG Sheet",
+                        text = "Нативный BottomSheet",
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "↕ Открыто во всю высоту (Large Detent). Потяните за шторку вниз для сворачивания (Medium Detent) или закрытия.",
+                        text = "iOS: UISheetPresentationController с системной физикой Apple. Потяните вниз для сворачивания или закрытия.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(20.dp))
 
-                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            Text("Параметры модального окна", style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(8.dp))
+                    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Лоадер внутри шторки", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(12.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Text("Включить виброотклик", modifier = Modifier.weight(1f))
-                                PlatformSwitch(
-                                    checked = sheetSwitchChecked,
-                                    onCheckedChange = {
-                                        sheetSwitchChecked = it
-                                        getHapticFeedback().selection()
-                                    }
-                                )
+                                PlatformLoader(size = LoaderSize.Medium)
                             }
                         }
                     }
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(20.dp))
 
-                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            Text("Тест тактильного отклика (:core)", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                "Taptic Engine (iOS) / Vibrator (Android)",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                PlatformButton(
-                                    onClick = { getHapticFeedback().lightImpact() },
-                                    variant = PlatformButtonVariant.Secondary,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Light")
-                                }
-                                PlatformButton(
-                                    onClick = { getHapticFeedback().mediumImpact() },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Medium", maxLines = 1)
-                                }
-                                PlatformButton(
-                                    onClick = { getHapticFeedback().heavyImpact() },
-                                    variant = PlatformButtonVariant.Secondary,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Heavy", maxLines = 1)
-                                }
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                PlatformButton(
-                                    onClick = { getHapticFeedback().success() },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Success", maxLines = 1)
-                                }
-                                PlatformButton(
-                                    onClick = { getHapticFeedback().error() },
-                                    variant = PlatformButtonVariant.Destructive,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Error", maxLines = 1)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    PlatformCard(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            Text("Комментарий к действию", style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(8.dp))
-                            PlatformTextField(
-                                value = sheetCommentText,
-                                onValueChange = { sheetCommentText = it },
-                                label = "Заметка",
-                                placeholder = "Введите примечание...",
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-
-                    PlatformButton(
+                    Button(
                         onClick = { showBottomSheet = false },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Готово")
+                        Text("Закрыть")
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
             }
         }

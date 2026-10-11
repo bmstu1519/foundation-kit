@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.bmstu1519.foundation.ui.controller.rememberTopViewController
 import platform.UIKit.UIAlertAction
 import platform.UIKit.UIAlertActionStyleCancel
 import platform.UIKit.UIAlertActionStyleDefault
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
-import platform.UIKit.UIApplication
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -18,11 +18,10 @@ actual fun PlatformAlertDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier
 ) {
-    DisposableEffect(alert) {
-        var currentController = UIApplication.sharedApplication.keyWindow?.rootViewController
-        while (currentController?.presentedViewController != null) {
-            currentController = currentController.presentedViewController
-        }
+    val topViewController = rememberTopViewController()
+
+    DisposableEffect(alert, topViewController) {
+        if (topViewController == null) return@DisposableEffect onDispose {}
 
         val alertController = UIAlertController.alertControllerWithTitle(
             title = alert.title,
@@ -52,7 +51,7 @@ actual fun PlatformAlertDialog(
             alertController.addAction(cancelAction)
         }
 
-        currentController?.presentViewController(alertController, animated = true, completion = null)
+        topViewController.presentViewController(alertController, animated = true, completion = null)
 
         onDispose {
             if (alertController.presentingViewController != null) {
