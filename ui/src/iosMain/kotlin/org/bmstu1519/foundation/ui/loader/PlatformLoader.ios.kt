@@ -13,6 +13,7 @@ import platform.UIKit.UIActivityIndicatorView
 import platform.UIKit.UIActivityIndicatorViewStyleLarge
 import platform.UIKit.UIActivityIndicatorViewStyleMedium
 import platform.UIKit.UIColor
+import platform.UIKit.systemGrayColor
 
 @OptIn(ExperimentalForeignApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -49,6 +50,8 @@ actual fun PlatformLoader(
                     blue = color.blue.toDouble(),
                     alpha = color.alpha.toDouble()
                 )
+            } else {
+                indicator.color = UIColor.systemGrayColor
             }
             indicator.startAnimating()
         },

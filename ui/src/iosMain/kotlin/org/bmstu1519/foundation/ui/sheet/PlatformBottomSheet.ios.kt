@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,13 +28,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.bmstu1519.foundation.ui.controller.LocalUIViewController
 import org.bmstu1519.foundation.ui.controller.rememberTopViewController
 import platform.UIKit.UIAdaptivePresentationControllerDelegateProtocol
+import platform.UIKit.UIColor
 import platform.UIKit.UIModalPresentationPageSheet
 import platform.UIKit.UIPresentationController
 import platform.UIKit.UISheetPresentationControllerDetent
 import platform.UIKit.presentationController
 import platform.UIKit.sheetPresentationController
+import platform.UIKit.systemBackgroundColor
 import platform.darwin.NSObject
 
 private class SheetDismissDelegate(
@@ -92,6 +97,9 @@ actual fun PlatformBottomSheet(
     val topViewController = rememberTopViewController()
     val currentOnDismiss by rememberUpdatedState(onDismissRequest)
     val currentContent by rememberUpdatedState(content)
+    val currentColorScheme by rememberUpdatedState(MaterialTheme.colorScheme)
+    val currentTypography by rememberUpdatedState(MaterialTheme.typography)
+    val currentShapes by rememberUpdatedState(MaterialTheme.shapes)
 
     DisposableEffect(topViewController) {
         if (topViewController == null) return@DisposableEffect onDispose {}
@@ -100,23 +108,40 @@ actual fun PlatformBottomSheet(
             currentOnDismiss()
         }
 
-        val sheetController = ComposeUIViewController {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    content = currentContent
-                )
-                if (showCloseButton) {
-                    IosSheetCloseButton(
-                        onClick = { currentOnDismiss() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(top = 16.dp, end = 16.dp)
-                    )
+        lateinit var sheetController: platform.UIKit.UIViewController
+        sheetController = ComposeUIViewController {
+            CompositionLocalProvider(LocalUIViewController provides sheetController) {
+                MaterialTheme(
+                    colorScheme = currentColorScheme,
+                    typography = currentTypography,
+                    shapes = currentShapes
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = currentColorScheme.surface
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(top = 28.dp),
+                                content = currentContent
+                            )
+                            if (showCloseButton) {
+                                IosSheetCloseButton(
+                                    onClick = { currentOnDismiss() },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(top = 14.dp, end = 16.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
 
+        sheetController.view.backgroundColor = UIColor.systemBackgroundColor
         sheetController.modalPresentationStyle = UIModalPresentationPageSheet
         sheetController.sheetPresentationController?.apply {
             detents = listOf(
